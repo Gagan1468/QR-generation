@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instant QR Generator - UDAAN TECH SOLUTIONS</title>
+
+  <style>
+    body {
+      background: #f6f9ff;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #172b4d;
+    }
+    #container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      padding: 3rem;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      color: #0052cc;
+    }
+    #input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+    #qr-container {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: #f4f5f7;
+      border-radius: 12px;
+      display: inline-block;
+    }
+    #download-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    button {
+      padding: 1rem 2rem;
+      background: #0052cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #003087;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+<div id="container">
+  <h1>Instant QR Generator</h1>
+  <input id="input" type="text" placeholder="Enter text or URL (e.g. https://your-site.com)">
+  <div id="qr-container"></div>
+  <div id="download-buttons">
+    <button id="download-png">Download PNG</button>
+    <button id="download-svg">Download SVG</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  const input = document.getElementById('input');
+  const qrContainer = document.getElementById('qr-container');
+  const downloadPng = document.getElementById('download-png');
+  const downloadSvg = document.getElementById('download-svg');
+
+  let qrCode = new QRCode(qrContainer, {
+    text: "Enter text or URL above",
+    width: 256,
+    height: 256,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  // Real-time update on type
+  input.addEventListener('input', () => {
+    const text = input.value.trim();
+    qrCode.makeCode(text || "Enter text or URL");
+  });
+
+  // Download PNG (high-res)
+  downloadPng.addEventListener('click', () => {
+    const canvas = qrContainer.querySelector('canvas');
+    if (!canvas) return alert("Generate QR first!");
+    const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    const a = document.createElement('a');
+    a.href = pngUrl;
+    a.download = "qr-code.png";
+    a.click();
+  });
+
+  // Download SVG (scalable)
+  downloadSvg.addEventListener('click', () => {
+    const text = input.value.trim();
+    if (!text) return alert("Enter text or URL!");
+    const qrSvg = new QRCode({
+      text: text,
+      width: 512,  // High res for SVG
+      height: 512,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    const svgElement = qrSvg._el;
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const a = document.createElement('a');
+    a.href = svgUrl;
+    a.download = "qr-code.svg";
+    a.click();
+  });
+</script>
+</body>
+</html>
